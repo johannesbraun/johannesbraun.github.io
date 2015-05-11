@@ -17,8 +17,8 @@
     <div id="header_wrap" class="outer">
         <header class="inner">
 
-          <h1 id="project_title">Johannes DSR project</h1>
-          <h2 id="project_tagline">blog about ideas and progress</h2>
+          <h1 id="project_title">Johannes Braun<br> Data science retreat Q1 2015</h1>
+          <h2 id="project_tagline">Portfolio project: Personalized local electronic music radio</h2>
 
         </header>
     </div>
@@ -31,199 +31,44 @@
       <div id="menu" class="side">
       <section id="menu" class="side">
       Home<br>
-      <a href="bandits.html">Bandits</a>
       </section>
       </div>
       
       <section id="main_content" class="inner">
+
         <h2>
-<a id="Soundcloud radio" class="anchor" href="#Soundcloud radio" aria-hidden="true"><span class="octicon octicon-link"></span></a>Soundcloud radio</h2>
-
-<p>The idea is to build a music player similar to Pandora and last.fm that will use the Soundcloud API to display and play music: </p>
-
-<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/186006068&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
-
-<p>The emphasis is to provide a personalised experience that tries to model and <strong> learn both your taste and your session preferences</strong> after finding <strong>relations between songs based on collaborative filtering of public user data i.e playlists and favorites</strong>. The app should principally be able to play music from multiple sources. For simplicity I will restrict the use case to Soundcloud because there currently is no personalised player of the mostly user generated content (e.g. remixes and DJ sets). 
-</p> <p>
-I imagine the user experience to be similar to the Spotify Radio feature. When the user likes one particular song they can start a radio station based on an the current track (e.g. Digitalism - Blitz). The app then creates a hidden playlist of related songs that is adjusted by the user’s explicit feedback (thumbs up/thumbs down)  
-
-</p>
-<p>
-<img class="sc" src="images/loveyoudude.png" width="150" alt="image">
-<img class="sc" src="images/start_radio.png" width="150" alt="image">
-<img class="sc" src="images/drugs.png" width="150" alt="image">
-<img class="sc" src="images/pq.png" width="150" alt="image">
-</p>
+<a id="DSR" class="anchor" href="#DSR" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is DSR</h2>
+“Data Science Retreat is a data science bootcamp that brings together top data scientists and mentees seeking to grow an exceptionally amount quickly.” (datascienceretreat.com) 
+The curriculum covers a variety of topics that stretch from formulating the analytical problem, getting data, finding insights, making predictions, data at scale to solid implementation practices and software engineering. My two personal favourite gems in the program were big data machine learning with Apache Spark as well as Deep Learning for Image processing using Theano. We did all the modeling in R and Python.
+<p> </p>
 
 
-<!--<a href="subpage.html">go to subpage</a>
--->
 <h2>
-<a id="under-the-hood" class="anchor" href="#under-the-hood" aria-hidden="true"><span class="octicon octicon-link"></span></a>Under the hood: Creating a music channel based on a song or artist</h2>
+<a id="Motivation" class="anchor" href="#Motivation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Motivation</h2>
 
-<p> 
-I am going to to use publicly available user data on playlists and favorites (via Soundcloud API). Starting with “Digitalism - Bitz” I can look for Soundcloud users that have that song (seed) in their favorite list. Additionally I can look for public playlists that contain the seed-song. <br><strong>What are the songs that frequently co-occur with this song?</strong></p>
-<p>
-A prototype python script generating a candidate list that isn’t horrible with current Soundcloud API functionality :</p>
+<p>As a portfolio project I have decided to build a music player similar to Pandora that focusses on electronic music in Berlin. I am using the Soundcloud API to display and play music: </p>
 
-<pre><code>#get all fans 
-fans = [ (fan.id, fan.username)
-  for fan in client.get('/tracks/%d/favoriters' % tid) ]
-</code></pre>
-<pre><code>#get all songs from fans
-songs = []
-for uid in fans:   
-  try:
-    user =  [u['favorites'] for u in db.user_favorites.find({"uid" : uid})] # does user exist in cache?
-    if len(user)>0: #if uid in mongo
-        ufavs = user[0]
-    else:
-        favorites = [[track.id, track.title] for track in client.get('/users/%d/favorites' % uid)] 
-        playslists = getAllSongsFromPL([track.id for track in client.get('/users/%d/playlists'%uid)])
-        following = getAllSongsFromFollowings([u.id for u in client.get('/users/%d/followings' %uid)])
-        followers = getAllSongsFromFollowings([u.id for u in client.get('/users/%d/followers' %uid)])
-        #ucomm = getAllSongsFromComments(uid)
-        combined = favorites + playslists + following +followers
+<iframe width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/150550717&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
 
-        writeUserToMongo(uid, combined, db) #TODO: probably better to store just the id and have a lookup table in mongo
-    songs=songs+[track for track in combined]
-  
-  except requests.HTTPError, e: print 'HTTP ERROR occured for user %d: %s' %(uid, e)
-</code></pre>
-<p>Recommendations (candidate list) for "Sky and Sand - Paul Kalkbrenner" are:</p>
+<p>I have structured this blog post into 5 five parts:
+</p>  
 
-<img class="sc" src="images/candidates.png" width="500" alt="image">
-
-<p>The related score (first column above) in this case is simply the number of co-occurences of two songs (seed and candidate) in the same user’s favorites list divided by the frequency of the candidate in ANY users favorites list. This normalisation is important to balance relevance and popularity: “Revolte (Original Mix)” occurs 9 times in the same user favourites as "Sky and Sand - Paul Kalkbrenner" while “Premiere: Royksopp ‘Sordid Affair’ (Maceo Plex Remix)” is co-liked by 19 users. Yet the related score for "Revolte (Original Mix)" is higher since it only has a total of 799 fans (vs. 4914)</p>
-
-<h3> Taken user feedback into consideration</h3>
-
-<p>We can interpret the related scores of all the songs in the above candidate list as a probability that the current user will like the song.
-Let’s further assume we have an offline job running that can create candidate lists c(i) with probabilities for all possible songs i. <br><br>
-
-Assuming we play the first song i=1: "Revolte (Original Mix)" after i=0: ”Sky and Sand” and get negative feedback form the user (dislike) we need to:
-<ul>
-<li>adjust the relation between i=0 and i=1 for all users in c(0): while 9 users like both i=0 and i=1, 1 user apparently does not</li>
-<li>adjust the playlist for the current user: He likes i=0 and doesn’t like  i=1</li>
-</ul>
-The former is a straightforward update using the same formula as before. The latter can be achieved by adapting the scores from list c(0) negatively based on scores from list c(1) for all songs i in c(0) AND c(1). The results is a personalised list c(0,u) with u being the current user. <br>
-
-This is only one of many possible ways of integrating user feedback into playlist generation and I need to spend more time thinking about how to do it. (See data science challenges)
-Implicit user behaviour (listening time and skips) can be equally treated as positive or negative feedback. <br><br>
-
-<strong>There are two outputs:</strong> We permanently learn improved relations between songs (online learning) while temporarily personalising the channel (playlists) for the current user (personalisation)</p>
-
-<h3>Taste profiles</h3>
-<p>
-For each user of our app every signal s in {play, skip, like, dislike} will be recorded for a playlist. That means we store the vector: &lt;u,p,[s]&gt;.
-
-Next time the user u listens to a channel of the same mood we recreate c(0,u) based on the latest c(0) and the candidate lists c(i) for all likes and dislikes in [s].
-
-(Again the details tbd)</p>
-
-<h3>Repetition vs Discovery</h3>
-<p>
-In order not to bore our user by repetitively playing the same songs for a station we can use the online learning framework of exploration and exploitation (see <a href="bandits.html">more detailed post on Bandit algorithms</a>). Instead of always picking the first song in the candidate list to play we we sample songs from the list with a probability that is based on the related score.<br><br> 
-Think about a multi armed bandit (or multiple “one armed” slot machines) one for each song in the candidate list. There is an actual unknown likelihood for the user to like the song given the channel. That’s equivalent of the likelihood of winning at slot machine i. </p>
-<img class="sc" src="images/kraken.jpg" width="250" alt="image">
-<p>Assume the app is actually an octopus with as many arms as slot machines (i.e. songs). Each arm plays at it’s own pace. Based on the related score in the candidate list we can determine the rate at which the octopus pulls arm/machine i. The outcome of each pull: winning or losing (like, dislike) will be used to adjust that sample rate.
-
-In discovery mode this sampling rate will be adjusted so candidates from further down the list are more likely to be picked.
-</p>
-
-
-
-
-<h2>DS challenges</h2>
-
-<p>There are many data science opportunities with this project. I am splitting them into four areas:</p>
-
-<p>
-<strong>1. Initial candidate generation </strong><br><br>
-
-a) Collaborative Filtering and Matrix factorisation for improved candidate generation (Maybe using Spark or Mahout)<br>
-<br>
-b) Reasonable improvements to structure the user data: weight by user’s popularity. Get all playlists a song is part of rather than all users who like the song<br>
-<br>
-c) Content based recommendations: especially in the absence of user data (what if the song is in nobody’s favourites?)
-<ul>
-<li>Text based feature extraction: Song titles, tags, comments, twitter feeds: Topic modeling, TFIDF, N-grams</li>
-<li>Referencing domain knowledge about artist and song catalogs (http://www.rollingstone.de/artists)</li>
-<li>Extract/ fetch audio features like bpm, mood, instruments etc.: Echonest, Deep learning to predict listening behavior reco: http://benanne.github.io/2014/08/05/spotify-cnns.html#predicting</li>
-</ul>
-d) Ranking: Diversity of a candidate list  
 </p>
 <p>
-<strong>2. Online learning</strong> <br>
-Experiment with different Bandit algos …?
-</p>
-<p>
-<strong>3. Personalisation </strong>
-<ul>
-<li>Think through framework of adapting candidate lists based on user history and taste profile</li>
-<li>Create latent user taste profile and map into song space </li>
-<li>HMM for session modelling? Model music session as stochastic process</li>
-<li>Relations between song sets: How likely is it that user listens to song 0 > song 1 > song 2 vs song 0 > song 2> song 4</li>
-</ul>
+<img class="sc" src="images/agenda.png" width="450" alt="image">
 </p>
 
 <p>
-<strong>4. Measuring success</strong>
-<ul>
-<li>Compare skips in a blind test for DSR members and friends</li>
-<li>I can measure MAP for held out user playlists</li>
-<li>Maybe I can use MSD data and see how my recommendations rank: http://labrosa.ee.columbia.edu/millionsong/, http://www.kaggle.com/c/msdchallenge</li>
-</ul>
+  First I am describing the general approach, the data gathering & engineering. Then in the main part I will talk about ways to generating music recommendations since playlist generation is essentially a recommendations problem. We will measure success of different approaches and then we’ll play some music.
+  [...]
+  https://docs.google.com/presentation/d/1CWKiGIhLbSvR-5mZW0dKA9ZDAQQiIvaLnpIVpC7Vvak/edit?usp=sharing
 </p>
 
-<h2>Engineering challenges</h2>
+<p>
+<iframe width="100%" height="450" src="https://www.youtube.com/embed/R93hBdxMOzo" frameborder="0" allowfullscreen></iframe>
+</p>
 
-<ul>  
-<li>Gather enough data to have meaningful candidate lists: twitter, last.fm, soundcloud</li>
-<ul>
-<li><a>https://api-v2.soundcloud.com/explore/metal?limit=10&offset=0 http://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=4c466dc9d837ae6dddee8612a8c5c473&format=json&limit=120</a></li>
-<li><a>http://ws.audioscrobbler.com/2.0/?method=chart.gettoptracks&api_key=4c466dc9d837ae6dddee8612a8c5c473&format=json&limit=120</a></li>
-<li><a>http://charts.spotify.com/?object=tracks&rank=most_streamed&country=global&windowtype=weekly&date=latest</a></li>
-</ul>
-<pre><code>import sys
-import tweepy
 
-class listener(StreamListener):
-    
-    def on_data(self, data):
-        #print data
-        #if 'soundcloud' in status.text.lower():
-        f.write(str(data))   
-        return True
-    def on_error(self,status):
-        print status
-        return True # Don't kill the stream
-    
-    def on_timeout(self):
-        print 'timeout'
-        return True # Don't kill the stream
-    
-auth = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-f = open('twitter_'+today+'.txt', 'a')
-twitterStream = Stream(auth, listener())
-twitterStream.filter(track={"soundcloud"})
-</code></pre>
-
-<li>Automatically fetch public user data vi api without being blocked</li>
-<ul>
-  <li> => possibly use multiple soundcloud accounts</li>
-</ul>
-<li>Scheduling and monitoring of initial candidate list generation implementation (cron jobs, ec2)</li>
-<pre><code>*/1 * * * * nohup python /home/ubuntu/twitter/top_tweets.py 1>>twitterlog.txt 2>1; mailx -s "Cron output" mail.blasta.me@gmail.com < twit$
-</code></pre>
-<li>Storage in mongodb for fast access</li>
-<li>Build api for frontend client: front end needs to read song candidate lists and have access to write user preferences</li>
-<ul>
-  <li> => http $post: node.js will send response that accesses mongo</li>
-</ul>
-<li>Update frequency?</li>
-</ul>
 </section>
     </div>
 
