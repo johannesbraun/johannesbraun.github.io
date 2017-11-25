@@ -1,170 +1,163 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
 
-.node {
-  cursor: pointer;
-}
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Johannesbraun.GitHub.io : blog ">
 
-.node circle {
-  fill: #fff;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-}
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-.node text {
-  font: 10px sans-serif;
-}
+    <title>Johannesbraun.GitHub.io</title>
+  </head>
 
-.link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 1.5px;
-}
+  <body>
 
-</style>
-<body>
-<script src="d3.v3.min.js"></script>
-<script>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
 
-var margin = {top: 20, right: 120, bottom: 20, left: 120},
-    width = 1440 - margin.right - margin.left,
-    height = 800 - margin.top - margin.bottom;
+          <h1 id="project_title">Johannes Braun<br> Data science retreat Q1 2015</h1>
+          <h2 id="project_tagline">Portfolio project: Personalized local electronic music radio</h2>
 
-var i = 0,
-    duration = 750,
-    root;
+        </header>
+    </div>
 
-var tree = d3.layout.tree()
-    .size([height, width]);
 
-var diagonal = d3.svg.diagonal()
-    .projection(function(d) { return [d.y, d.x]; });
+    
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      
+      <div id="menu" class="side">
+      <section id="menu" class="side">
+      Home<br>
+      </section>
+      </div>
+      
+      <section id="main_content" class="inner">
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.right + margin.left)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        <h2>
+<a id="DSR" class="anchor" href="#DSR" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is DSR</h2>
+“Data Science Retreat is a data science bootcamp that brings together top data scientists and mentees seeking to grow an exceptionally amount quickly.” (datascienceretreat.com) 
+The curriculum covers a variety of topics that stretch from formulating the analytical problem, getting data, finding insights, making predictions, data at scale to solid implementation practices and software engineering. My two personal favourite gems in the program were big data machine learning with Apache Spark as well as Deep Learning for Image processing using Theano. We did all the modeling in R and Python.
+<p> </p>
 
-d3.json("replies_dau.json", function(error, flare) {
-  if (error) throw error;
 
-  root = flare;
-  root.x0 = height / 2;
-  root.y0 = 0;
+<h2>
+<a id="Motivation" class="anchor" href="#Motivation" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Motivation</h2>
 
-  function collapse(d) {
-    if (d.children) {
-      d._children = d.children;
-      d._children.forEach(collapse);
-      d.children = null;
-    }
-  }
+<p>As a portfolio project I have decided to build a music player similar to Pandora that focusses on electronic music in Berlin. I am using the <a href="http://www.soundcloud.com">Soundcloud</a> API to display and play music: </p>
 
-  //root.children.forEach(collapse);
-  update(root);
-});
+<iframe width="100%" height="200" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/150550717&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
 
-d3.select(self.frameElement).style("height", "800px");
+<p>I have structured this blog post into 5 five parts:
+</p>  
 
-function update(source) {
+</p>
+<p>
+<img class="sc" src="images/agenda.png" width="450" alt="image">
+</p>
 
-  // Compute the new tree layout.
-  var nodes = tree.nodes(root).reverse(),
-      links = tree.links(nodes);
+<p>
+  First I am describing the general approach, the data gathering & engineering. Then in the main part I will talk about ways to generating music recommendations since playlist generation is essentially a recommendations problem. We will measure success of different approaches and then we’ll play some music.
+  <br>
+  <a id="fullpreso" href="Johannes DSR Final project.pdf">Download full presentation</a> 
+</p>
 
-  // Normalize for fixed-depth.
-  nodes.forEach(function(d) { d.y = d.depth * 180; });
+<h2>
+<a id="Demo" class="anchor" href="#Demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. General approach</h2>
+<p>
+  The goal is to recommend electronic music that is currently being played in local nightclubs in Berlin. As an authority for music relevance I am using the excellent <a href="http://www.residentadvisor.net">residentadvisor.net</a> which is an online music magazine dedicated to electronic music. Resident advisor provides rankings of Clubs, DJs and most importantly it features local events. </p>
 
-  // Update the nodes…
-  var node = svg.selectAll("g.node")
-      .data(nodes, function(d) { return d.id || (d.id = ++i); });
+<p>When looking at it today 30/04/2015 you will see a few mayday events: “Tanz in den Mai” or  “Walpurgisnacht” are frequent themes of the evening. More prominently there is a 10 years anniversary of a berlin music label Boysnoize Records founded by the german artist Boysnoize. 
+They feature quite a lineup and I especially like Modeselektor </p>
 
-  // Enter any new nodes at the parent's previous position.
-  var nodeEnter = node.enter().append("g")
-      .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-      .on("click", click);
+<p>For my music recommender I am gathering information about events and lineups from residentadvisor.net using <a href="http://scrapy.org/">scrapy</a> a web scraping python library and then go and search for their music on soundcloud</p>
 
-  nodeEnter.append("circle")
-      .attr("r", 1e-6)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-  nodeEnter.append("text")
-      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      .attr("dy", ".35em")
-      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6);
 
-  // Transition nodes to their new position.
-  var nodeUpdate = node.transition()
-      .duration(duration)
-      .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+<p>
+<img class="sc" src="images/ra.png" width="450" alt="image">
+</p>
 
-  nodeUpdate.select("circle")
-      .attr("r", 4.5)
-      .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+<p>
+<img class="sc" src="images/image06.png" alt="image">
+<img class="sc" src="images/image03.png" alt="image">
+</p>
 
-  nodeUpdate.select("text")
-      .style("fill-opacity", 1);
+<p>
+  The mapping from DJ-name to soundcloud userid is not trivial. I search for the DJ-name e.g."oneman" via the soundcloud API: <br>
+  <a href="http://api.soundcloud.com/users.json?client_id=f1e5aa070cd022106198bbcfd7691ac4&q=oneman&limit=1">http://api.soundcloud.com/users.json?client_id=f1e5aa070cd022106198bbcfd7691ac4&q=oneman&limit=1</a>
+</p>
 
-  // Transition exiting nodes to the parent's new position.
-  var nodeExit = node.exit().transition()
-      .duration(duration)
-      .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
-      .remove();
+<p>
+<img class="sc" src="images/image05.png"  alt="image">
+</p>
 
-  nodeExit.select("circle")
-      .attr("r", 1e-6);
+<p>
+  In the next step I measure the the similarity between the username of the response and the DJ-name using the LEVENSHTEIN distance. I only approve the mapping when the strings are sufficiently similar. On top of that I enforce a minimum of legitimate followers i.e. followers from the set of DJs that have officially provided their soundcloud ids on residentadvisor.net. This way I am losing out a few DJs but achieve a high confidence in my recommendations
 
-  nodeExit.select("text")
-      .style("fill-opacity", 1e-6);
+  <pre><code>
+    import soundcloud
+    client = soundcloud.Client(client_id='f1e5aa070cd022106198bbcfd7691ac4') 
+    [...]
+    friends = [(follower.id, follower.username) for follower in client.get('/users/%d/followings' % aid, page_size = default,  offset=offset)
+  </code></pre>
+</p>
 
-  // Update the links…
-  var link = svg.selectAll("path.link")
-      .data(links, function(d) { return d.target.id; });
 
-  // Enter any new links at the parent's previous position.
-  link.enter().insert("path", "g")
-      .attr("class", "link")
-      .attr("d", function(d) {
-        var o = {x: source.x0, y: source.y0};
-        return diagonal({source: o, target: o});
-      });
+<p>To fetch tracks for the identified DJ userids i iterate through the user profiles, collections and  playlist <br>
+<a href="https://api-v2.soundcloud.com/profile/soundcloud:users:199117?limit=10&offset=0">https://api-v2.soundcloud.com/profile/soundcloud:users:199117?limit=10&offset=0 </a></p>
 
-  // Transition links to their new position.
-  link.transition()
-      .duration(duration)
-      .attr("d", diagonal);
+<p>
+<img class="sc" src="images/image14.png"  alt="image">
+</p>
 
-  // Transition exiting nodes to the parent's new position.
-  link.exit().transition()
-      .duration(duration)
-      .attr("d", function(d) {
-        var o = {x: source.x, y: source.y};
-        return diagonal({source: o, target: o});
-      })
-      .remove();
+<p>
+For each of the tracks I extract all the users that have liked the track: 
+<pre><code>
+fans = [ fan.id  for fan in client.get('/tracks/%d/favoriters' % tid, page_size = default,  offset=offset)]
+</code></pre>
 
-  // Stash the old positions for transition.
-  nodes.forEach(function(d) {
-    d.x0 = d.x;
-    d.y0 = d.y;
-  });
-}
+I also send the streaming url to the Echo Nest API for audio feature extraction
+</p>
 
-// Toggle children on click.
-function click(d) {
-  if (d.children) {
-    d._children = d.children;
-    d.children = null;
-  } else {
-    d.children = d._children;
-    d._children = null;
-  }
-  update(d);
-}
+<p>
+<img class="sc" src="images/image20.png"  alt="image">
+</p>
 
-</script>
+
+<h2>
+<a id="Demo" class="anchor" href="#Demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Data Science</h2>
+<p>
+</p>
+
+
+<h2>
+<a id="Demo" class="anchor" href="#Demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Launching the radio service</h2>
+<p>
+<img class="sc" src="images/agenda.png" width="450" alt="image">
+</p>
+
+<h2>
+<a id="Demo" class="anchor" href="#Demo" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Demo</h2>
+
+<p>
+<iframe width="100%" height="450" src="https://www.youtube.com/embed/R93hBdxMOzo" frameborder="0" allowfullscreen></iframe>
+</p>
+
+
+</section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
