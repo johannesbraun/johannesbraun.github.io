@@ -1,2 +1,0 @@
-# johannesbraun.github.io
-blog 
