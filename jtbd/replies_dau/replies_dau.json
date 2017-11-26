@@ -42,17 +42,20 @@
         ]
       },
       {
-        "name": "Category Browse",
+        "name": "Category Browse: Don't make me type",
         "children": [
-          {"name": "Path finding: Don't make me type",
+          {"name": "Enable new filters",
             "children":[
               {"name": "Introduce new filters based on attribute extraction"},
-              {"name": "Conversational filters"},
-              {"name": "Keyword based filters"},
-              {"name": "Dynamic Navigation based on preferences"}
-            ]},
-          {"name": "Pick up where I left off"},
-          {"name": "Overview whats availlable"}
+              {"name": "Keyword based filters"}
+            ]
+          },
+          {"name": "Encourage Filtering",
+          "children":[
+            {"name": "Conversational filters"},
+            {"name": "Dynamic Navigation based on preferences"}]
+          },
+          {"name": "Inform/Overview whats available"}
         ]
       }
     ]
@@ -105,25 +108,34 @@
             "children":[
               {"name": "Nightmare"},
               {"name": "Recent searches"},
-              {"name": "Saved Searches"}
+              {"name": "Saved Searches"},
+              {"name": "Pick me up where I left"}
             ]},
           {
             "name": "user embeddings",
             "children":[
-          {"name": "u2i: Kingsman"},
-          {"name": "u2u: Users similar to you searched for"}]},
-                  {"name": "Social"}
+            {"name": "u2i: Kingsman"},
+            {"name": "u2u: Users similar to you searched for"}
+            ]
+            },
+            {"name": "Social"}
           ]},
         {"name": "Trends",
           "children": [
             {"name": "Trending in your location"},
             {"name": "Trending in November"}
           ]},
-        {"name": "Surprise"}
-    ]
+        {"name": "Surprise",
+          "children": [
+              {"name": "showcase high impulse items to users"}
+            ]}
+      ]
     },
     {
-      "name": "Notifications"
+      "name": "Notifications",
+      "children": [
+          {"name": "Expose spells for notifications"}
+      ]
     },
     {
       "name": "Search",
