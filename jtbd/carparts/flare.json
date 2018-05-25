@@ -1,0 +1,101 @@
+{
+ "name": "Parts and Accessories",
+ "children": [
+  {"name": "GPS"},
+  {"name": "Accessories"},
+  {"name": "Car chemistry"},
+  {
+    "name": "Audio",
+    "children": [
+     {"name": "Receivers"},
+     {"name": "Subwoofers and Speakers"},
+     {"name": "Amplifiers"},
+     {"name": "Other"}
+    ]
+  },
+  {
+   "name": "Parts",
+   "children": [
+    {
+     "name": "For vehicles",
+     "children": [
+      {"name": "Lighting", "size": 3938},
+      {"name": "Battery", "size": 3812},
+      {"name": "Engine", "size": 6714},
+      {"name": "Spare parts for maintenance", "size": 743},
+      {"name": "Suspension Parts", "size": 743},
+      {
+        "name": "Body",
+        "children": [
+          {"name": "Canopy", "size": 3938},
+          {"name": "Trunk", "size": 3938},
+          {"name": "Bumper", "size": 3938},
+          {"name": "Door", "size": 3938},
+          {"name": "Body Parts", "size": 3938},
+          {"name": "Hood", "size": 3938},
+          {"name": "Wing", "size": 3938},
+          {"name": "Cover, Tailgate", "size": 3938}
+        ]
+      },
+      {"name": "Steering", "size": 743},
+      {"name": "Cooling Systems", "size": 743},
+      {"name": "Glass", "size": 743},
+      {"name": "Fuel and exhaust systems", "size": 743},
+      {"name": "Brake Systems", "size": 743},
+      {"name": "Transmission", "size": 743},
+      {"name": "Electrical", "size": 743},
+      {
+        "name": "Salon",
+        "children": [
+          {"name": "Salon parts", "size": 3938},
+          {"name": "Headliner", "size": 3938},
+          {"name": "Panel", "size": 3938},
+          {"name": "Seat", "size": 3938}
+        ]
+      }
+      ]
+    },
+    {"name": "Parts for Water Sport","size": 3534},
+    {"name": "Parts for Motorcycles","size": 3534},
+    {"name": "Parts for Machinery","size": 3534}
+   ]
+  },
+  {"name": "Tools"},
+  {"name": "Wheels",
+    "children": [
+          {"name": "Rims", "size": 3938},
+          {"name": "Wheels", "size": 3938},
+          {"name": "Tires", "size": 3938},
+          {"name": "Caps", "size": 3938},
+          {"name": "Motorcycle tires", "size": 3938}
+        ]
+  },
+  {"name": "Trailer"},
+  {
+   "name": "Anti Theft",
+   "children": [
+    {"name": "Car alarm"},
+    {"name": "Immobilisers", "size": 1759},
+    {"name": "Mechanical Locking", "size": 2165},
+    {"name": "Satellite Systems", "size": 586}
+   ]
+  },
+  {"name": "Tuning Parts"},
+  {
+   "name": "Equipment",
+   "children": [
+    {"name": "Visor", "size": 8833},
+    {"name": "Back protection", "size": 1732},
+    {"name": "Coverall", "size": 3623},
+    {"name": "Motorboats", "size": 10066},
+    {"name": "Jackets", "size": 10066},
+    {"name": "Knee", "size": 10066},
+    {"name": "Spectacles", "size": 10066},
+    {"name": "Gloves", "size": 10066},
+    {"name": "Armour", "size": 10066},
+    {"name": "Helmet", "size": 10066},
+    {"name": "Pants", "size": 10066}
+   ]
+  }
+ ]
+}
